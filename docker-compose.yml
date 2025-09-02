@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  backend:
+    build: ./backend
+    container_name: attendance-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=attendance
+      - SECRET_KEY=mysecretkey
+    depends_on:
+      - db
+
+  frontend:
+    image: nginx:alpine
+    container_name: attendance-frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+
+  db:
+    image: mariadb:10.6
+    container_name: attendance-db
+    restart: always
+    platform: linux/arm64/v8
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: attendance
+      MARIADB_USER: root
+      MARIADB_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+
+volumes:
+  mariadb-data:
